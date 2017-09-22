@@ -1,0 +1,25 @@
+{
+  "name": "ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch --config webpack.devConfig.js",
+    "dev": "webpack --env=dev --progress --profile --colors --verbose --config webpack.devConfig.js",
+    "dist": "webpack --env=prod --progress --profile --colors --config webpack.prdConfig.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "extract-text-webpack-plugin": "^3.0.0",
+    "ts-loader": "^2.3.7",
+    "webpack": "^3.6.0",
+    "webpack-merge": "^4.1.0"
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "html-webpack-plugin": "^2.30.1",
+    "style-loader": "^0.18.2"
+  }
+}
