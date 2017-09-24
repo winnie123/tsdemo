@@ -1,11 +1,18 @@
 import {PageParamModel} from "./car";
 
 export interface CarListBaseDataModel {
-    pageIndex : number,
-    pageCount : number,
+    currentPageIndex : number,
+    totalPages : number,
     pageParam : PageParamModel
 }
 
 export interface CarListActionDataModel {
-    search : ()=>void
+    search : (pageIndex : number)=>void
+}
+
+export interface PaginatorModel{
+    totalPages : number,
+    visiblePages : number,
+    currentPage:number,
+    onPageChange : (num,type)=>{}
 }

@@ -2,19 +2,25 @@ import * as MockData from '../mockdata/mockdata.js';
 import {CarModel, PageParamModel, SearchParamModel, SearchResultModel} from "../model/car";
 import * as Constant from '../common/constant';
 
-export class CarBiz {
+export default class CarBiz {
 
     private data: Array<CarModel>;// 数据源数据
+    public searchParam : SearchParamModel;// 请求参数
     public searchResult: Array<CarModel>;// 查询缓存数据，加快分页查询速度
+    private showResult  : Array<CarModel>;// 显示的内容
+    private currentPageIndex : number;// 当前页数
     private pageIndex: number;// 页数
     private pageSize: number;// 每页显示条数
 
     constructor() {
         this.data = MockData.carList;// 获取数据源数据
         this.data = this._sortCarList(this.data);// 数据排序
+        this.searchParam = null;// 请求参数
         this.searchResult = [];// 缓存数据对象
-        this.pageIndex = 1;// 默认页码
+        this.showResult = [];// 显示的内容
+        this.currentPageIndex = 1;// 默认页码
         this.pageSize = Constant.pageSize;// 每页显示条数
+        this.pageIndex = this.searchResult.length / this.pageSize + 1;
     }
 
 
@@ -85,19 +91,19 @@ export class CarBiz {
         return {
             carList: arr,
             totalCount,
-            pageIndex,
-            pageCount
+            currentPageIndex : pageIndex,
+            totalPages : pageCount
         };
     }
 
     /**
      * @member 分页查询
      * @param {Array<CarModel>} data 缓存数据结果
-     * @param {PageParamModel} param 查询条件
+     * @param {pageIndex} number 页码
      * @returns {SearchResultModel} 查询结果
      */
-    public searchDataByPage(data: Array<CarModel>, param: PageParamModel): SearchResultModel {
-        return this._initSearchResult(data, param.pageIndex, Constant.pageSize);// 包装数据结果
+    public searchDataByPage(data: Array<CarModel>, pageIndex: number): SearchResultModel {
+        return this._initSearchResult(data, pageIndex, Constant.pageSize);// 包装数据结果
     }
 
 

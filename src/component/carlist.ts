@@ -1,21 +1,21 @@
-import {CarListActionDataModel, CarListBaseDataModel} from "../model/carlist-model";
-import {FormcarItemDataModel} from "../model/formcar-model";
-import {CarBiz} from "../biz/car_biz";
+import {CarListActionDataModel, CarListBaseDataModel, PaginatorModel} from "../model/carlist";
+import {FormcarItemDataModel} from "../model/formcar";
+import CarBiz from "../biz/car";
 import * as Constant from '../common/constant';
-import {CarModel, SearchParamModel} from "../model/car_model";
+import {CarModel, SearchParamModel} from "../model/car";
+import * as $ from 'jquery';
+import jqPaginator from 'jqpaginator/dist/1.2.0/jqpaginator.min';
 
 
-export class CarListComponent {
-    private searchParam: SearchParamModel;
+export default class CarListComponent {
     public baseData: CarListBaseDataModel;
     public itemData: FormcarItemDataModel;
     public actionData: CarListActionDataModel;
     public biz: CarBiz;
 
 
-    constructor(biz: CarBiz, searchParam: SearchParamModel) {
+    constructor(biz: CarBiz) {
         this.biz = biz;
-        this.searchParam = searchParam;
         this.baseData = null;
         this.itemData = null;
         this.actionData = null;
@@ -23,8 +23,8 @@ export class CarListComponent {
 
     private _initBaseData(): any {
         let baseData = {
-            pageIndex: 1,
-            pageCount: this.biz.searchResult.length / Constant.pageSize,
+            currentPageIndex: 1,
+            pageIndex: this.biz.searchResult.length / Constant.pageSize,
             pageParam: {
                 pageInex: 1
             }
@@ -36,9 +36,9 @@ export class CarListComponent {
         let itemData = {
             result: {
                 carList: this.biz.searchResult,
-                pageCount: this.baseData.pageCount,// 页数
+                totalPages: this.baseData.totalPages,// 页数
                 totalCount: this.biz.searchResult.length,
-                pageIndex: this.baseData.pageIndex
+                currentPageIndex: this.baseData.currentPageIndex
             }
         };
 
@@ -47,8 +47,8 @@ export class CarListComponent {
 
     private _actionData(): CarListActionDataModel {
         let actionData = {
-            search: () => {
-                this.biz.searchDataByPage(this.biz.searchResult, this.baseData.pageParam);
+            search: (pageIndex) => {
+                this.biz.searchDataByPage(this.biz.searchResult, pageIndex);
             }
         };
         return actionData;
@@ -78,13 +78,19 @@ export class CarListComponent {
         return component;
     }
 
+    /**
+     * @method 渲染农机列表内容
+     * @param {Array<CarModel>} data 农机数据集
+     * @returns {string}
+     * @private
+     */
     private _renderRow(data: Array<CarModel>): string {
         let component = ``;
         data.forEach((item, index) => {
             component += `
                         <li class="tabTitle">
 							<ul class="col ">
-								<li class="col1">${index + this.baseData.pageIndex * Constant.pageSize}</li>
+								<li class="col1">${index + this.baseData.currentPageIndex * Constant.pageSize}</li>
 								<li class="col2">${item.typeA}</li>
 								<li class="col3">${item.typeB}</li>
 								<li class="col4">${item.category}</li>
@@ -100,7 +106,23 @@ export class CarListComponent {
         return component;
     }
 
-    public bindEvent(): void {
-
+    /**
+     * @method 渲染分页控件
+     * @param {PaginatorModel} param 控件参数
+     * @private
+     */
+    private _renderPaginator(param: PaginatorModel): void {
+        let self = this;
+        $('#foot').jqPaginator({
+            totalPages: param.totalPages,
+            visiblePages: param.visiblePages,
+            currentPage: param.currentPage,
+            onPageChange: function (num, type) {
+                self.itemData.result = self.biz.searchDataByPage(self.biz.searchResult, num);
+                $('.section').html('');
+                let html = self.render();
+                $('.section').html(html);
+            }
+        });
     }
 }

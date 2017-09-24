@@ -31,7 +31,7 @@ export interface PageParamModel {
 
 export interface SearchResultModel{
     carList : Array<CarModel>,
-    pageCount : number,// 页数
+    totalPages : number,// 页数
     totalCount : number,
-    pageIndex : number
+    currentPageIndex : number
 }
