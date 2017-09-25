@@ -4,6 +4,7 @@ import {FormcarBaseDataModel, FormcarItemDataModel, ForcarActionDataModel, Selec
 import * as Mock from '../mockdata/mockdata.js';
 import * as Util from '../common/util';
 import * as $ from 'jquery';
+import CarListComponent from './carlist';
 
 export default class FormcarComponent {
     public biz: CarBiz;
@@ -11,13 +12,15 @@ export default class FormcarComponent {
     public baseData: FormcarBaseDataModel;
     public itemData: FormcarItemDataModel;
     public actionData: ForcarActionDataModel;
+    private tableComponent: CarListComponent;
 
-    constructor(biz: CarBiz) {
+    constructor(biz: CarBiz, tableComponent: CarListComponent) {
         this.biz = biz;
         this.param = null;
         this.baseData = null;
         this.itemData = null;
         this.actionData = null;
+        this.tableComponent = tableComponent;
     }
 
     public initData(): void {
@@ -27,13 +30,13 @@ export default class FormcarComponent {
     }
 
     private _initBaseData(): FormcarBaseDataModel {
-        let typeAs = Util.getArrayDistinctByAttribute(Mock.carList, 'typeA');
-        let typeBs = Util.getArrayDistinctByAttribute(Mock.carList, 'typeB');
-        let categorys = Util.getArrayDistinctByAttribute(Mock.carList, 'categroy');
-        let types = Util.getArrayDistinctByAttribute(Mock.carList, 'type');
-        let carTypes = Util.getArrayDistinctByAttribute(Mock.carList, 'carType');
-        let names = Util.getArrayDistinctByAttribute(Mock.carList, 'name');
-        let carCitys = Util.getArrayDistinctByAttribute(Mock.carList, 'carCity');
+        let typeAs = this._initSelections<SelectModel>({value: '', content: '机具大类'}, 'typeA');
+        let typeBs = this._initSelections<SelectModel>({value: '', content: '机具小类'}, 'typeB');
+        let categorys = this._initSelections<SelectModel>({value: '', content: '机具品目'}, 'categroy');
+        let types = this._initSelections<SelectModel>({value: '', content: '产品名称'}, 'type');
+        let carTypes = this._initSelections<SelectModel>({value: '', content: '机具型号'}, 'carType');
+        let names = this._initSelections<SelectModel>({value: '', content: '拟归入分档名称'}, 'name');
+        let carCitys = this._initSelections<SelectModel>({value: '', content: '车牌城市名称'}, 'carCity');
 
         let baseData = {
             typeAs,
@@ -49,6 +52,13 @@ export default class FormcarComponent {
         return baseData;
     }
 
+    _initSelections<T>(defaultOption: object, attribute: string): Array<T> {
+        let result = [];
+        result.push(defaultOption);
+        result = result.concat(Util.getArrayDistinctByAttribute(Mock.carList, attribute));
+        return result;
+    }
+
     public _initItemData(): FormcarItemDataModel {
         let itemData = {
             result: null
@@ -61,17 +71,19 @@ export default class FormcarComponent {
         let actionData = {
             search: () => {
                 let searchParam = {
-                    typeA: $('#typeAs_select').val().toString(),// 比较大类
-                    typeB: $('#typeBs_select').val().toString(),// 比较小类
-                    category: $('#categorys_select').val().toString(),// 比较品目
-                    carNo: $('#carNo_txt').val().toString(),// 比较车牌号码
-                    carType: $('#carTypes_select').val().toString(),// 比较机具型号
-                    type: $('#types_select').val().toString(),// 比较器具类型
-                    name: $('#names_select').val().toString(),// 比较产品名称
-                    company: $('#company_txt').val().toString(),// 比较企业
-                    carCity: $('#carCitys_select').val().toString()// 比较所在地
+                    typeA: $('#typeAs_select').val(),// 比较大类
+                    typeB: $('#typeBs_select').val(),// 比较小类
+                    category: $('#categorys_select').val(),// 比较品目
+                    carNo: $('#carNo_txt').val(),// 比较车牌号码
+                    carType: $('#carTypes_select').val(),// 比较机具型号
+                    type: $('#types_select').val(),// 比较器具类型
+                    name: $('#names_select').val(),// 比较产品名称
+                    company: $('#company_txt').val(),// 比较企业
+                    carCity: $('#carCitys_select').val()// 比较所在地
                 };
                 this.itemData.result = this.searchCarList(searchParam);
+                $('.section').html('');
+                $('.section').html(this.tableComponent.render());
             }
         };
         return actionData;
@@ -94,8 +106,8 @@ export default class FormcarComponent {
 
     public render(): string {
         return `
-            <div>
-                 <div class="list1">
+            <form action="#">
+                <div class="list1">
                     <select class="select1" id="typeAs_select">
                         ${this._renderOptions(this.baseData.typeAs)}
                     </select>
@@ -131,13 +143,15 @@ export default class FormcarComponent {
                     </div>
                 </div>
                 <div class="list5">
-                    <input type="button" id="search_btn" v-on:click="searchData"/>
+                    <input type="button" id="search_btn"/>
                 </div>
-            </div>`;
+            </div>
+            </form>`;
     }
 
     public bindEvent(): void {
         $('#search_btn').bind('click', this.actionData.search);
+
     }
 
     /**

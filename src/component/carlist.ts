@@ -21,6 +21,12 @@ export default class CarListComponent {
         this.actionData = null;
     }
 
+    public initData(): void {
+        this.baseData = this._initBaseData();
+        this.itemData = this._initItemData();
+        this.actionData = this._initActionData();
+    }
+
     private _initBaseData(): any {
         let baseData = {
             currentPageIndex: 1,
@@ -45,7 +51,7 @@ export default class CarListComponent {
         return itemData;
     }
 
-    private _actionData(): CarListActionDataModel {
+    private _initActionData(): CarListActionDataModel {
         let actionData = {
             search: (pageIndex) => {
                 this.biz.searchDataByPage(this.biz.searchResult, pageIndex);
@@ -72,7 +78,7 @@ export default class CarListComponent {
 								<li class="col10">车牌城市名称</li>
 							</ul>
 						</li>
-						${this._renderRow(this.itemData.result.carList)}
+						${this._renderRow(this.biz.showResult)}
 					</ul>`;
 
         return component;
@@ -90,7 +96,7 @@ export default class CarListComponent {
             component += `
                         <li class="tabTitle">
 							<ul class="col ">
-								<li class="col1">${index + this.baseData.currentPageIndex * Constant.pageSize}</li>
+								<li class="col1">${index + 1 + (this.baseData.currentPageIndex - 1) * Constant.pageSize}</li>
 								<li class="col2">${item.typeA}</li>
 								<li class="col3">${item.typeB}</li>
 								<li class="col4">${item.category}</li>

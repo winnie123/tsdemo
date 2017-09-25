@@ -7,9 +7,9 @@ export default class CarBiz {
     private data: Array<CarModel>;// 数据源数据
     public searchParam : SearchParamModel;// 请求参数
     public searchResult: Array<CarModel>;// 查询缓存数据，加快分页查询速度
-    private showResult  : Array<CarModel>;// 显示的内容
+    public showResult  : Array<CarModel>;// 显示的内容
     private currentPageIndex : number;// 当前页数
-    private pageIndex: number;// 页数
+    private totalPages: number;// 页数
     private pageSize: number;// 每页显示条数
 
     constructor() {
@@ -20,7 +20,7 @@ export default class CarBiz {
         this.showResult = [];// 显示的内容
         this.currentPageIndex = 1;// 默认页码
         this.pageSize = Constant.pageSize;// 每页显示条数
-        this.pageIndex = this.searchResult.length / this.pageSize + 1;
+        this.totalPages = this.searchResult.length / this.pageSize + 1;// 页数
     }
 
 
@@ -45,9 +45,10 @@ export default class CarBiz {
      * @returns {SearchResultModel} 查询结果
      */
     public searchData(param: SearchParamModel): SearchResultModel {
-        let arr = this._filterData(this.data, param);// 根据条件过滤数据
-        this.searchResult = arr;
-        return this._initSearchResult(arr, 1, this.pageSize);// 包装数据结果
+        this.searchResult = this._filterData(this.data, param);// 根据条件过滤数据
+        let result = this._initSearchResult(this.searchResult, 1, this.pageSize);// 包装数据结果
+        this.showResult = result.carList;
+        return result;
     }
 
     /**
@@ -59,16 +60,16 @@ export default class CarBiz {
      */
     private _filterData(data: Array<CarModel>, param: SearchParamModel): Array<CarModel> {
         data = data.filter((farmCar) => {
-            let result = false;
-            result = result && (farmCar.typeA === param.typeA) || false;// 比较大类
-            result = result && (farmCar.typeB === param.typeB) || false;// 比较小类
-            result = result && (farmCar.category === param.category) || false;// 比较品目
-            result = result && (farmCar.carNo.indexOf(param.typeA) !== -1) || false;// 比较车牌号码
-            result = result && (farmCar.carType === param.carType) || false;// 比较机具型号
-            result = result && (farmCar.type === param.type) || false;// 比较器具类型
-            result = result && (farmCar.name === param.name) || false;// 比较产品名称
-            result = result && (farmCar.company.indexOf(param.company) !== -1) || false;// 比较企业
-            result = result && (farmCar.carCity === param.carCity) || false;// 比较所在地
+            let result = true;
+            result = result && (!param.typeA || result && param.typeA  && (farmCar.typeA === param.typeA)) || false;// 比较大类
+            result = result && (!param.typeB || result && param.typeB && (farmCar.typeB === param.typeB)) || false;// 比较小类
+            result = result && (!param.category || result && param.category && (farmCar.category === param.category)) || false;// 比较品目
+            result = result && (!param.carNo || result && param.carNo && (farmCar.carNo.indexOf(param.carNo) !== -1)) || false;// 比较车牌号码
+            result = result && (!param.carType || result && param.carType && (farmCar.carType === param.carType)) || false;// 比较机具型号
+            result = result && (!param.type || result && param.type && (farmCar.type === param.type)) || false;// 比较器具类型
+            result = result && (!param.name || result && param.name && (farmCar.name === param.name)) || false;// 比较产品名称
+            result = result && (!param.company || result && param.company && (farmCar.company.indexOf(param.company) !== -1)) || false;// 比较企业
+            result = result && (!param.carCity || result && param.carCity && (farmCar.carCity === param.carCity)) || false;// 比较所在地
             return result;
         });
         return data;

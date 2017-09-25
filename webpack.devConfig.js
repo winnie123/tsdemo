@@ -15,7 +15,13 @@ module.exports=Merge(CommonConfig, {
         contentBase: __dirname
     },
     plugins: [
-        new HtmlWebpackPlugin(),
-        new ExtractTextPlugin('style.css')
+        new HtmlWebpackPlugin({
+            title:'农机在线平台',
+            filename:'index.html',
+            template:'index.html'
+        }),
+        new ExtractTextPlugin('style.bundle.css',{
+            allChunks : true
+        })
     ]
 });
